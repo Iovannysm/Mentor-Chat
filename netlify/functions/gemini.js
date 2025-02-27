@@ -1,5 +1,4 @@
 // netlify/functions/gemini.js
-const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -7,10 +6,12 @@ exports.handler = async (event) => {
   }
 
   const { messages } = JSON.parse(event.body);
-  const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+  const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
   const API_KEY = process.env.VITE_GEMINI_API_KEY;
 
   try {
+    const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
     const response = await fetch(`${GEMINI_API_URL}?key=${API_KEY}`, {
       method: 'POST',
       headers: {
