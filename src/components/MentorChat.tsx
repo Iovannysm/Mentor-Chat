@@ -38,13 +38,16 @@ export const MentorChat: React.FC = () => {
       setMessages(prev => [...prev, userMessage]);
       setInput('');
 
+      // Dynamic history length based on token count (simplified example)
+      const maxHistoryTokens = 1000; // Adjust as needed based on Gemini API limits
+      const history = getLimitedHistory(messages, userMessage, maxHistoryTokens);
+
       const aiResponse = await sendMessageToGemini([
         {
           role: 'system',
           content: 'You are a helpful AI mentor who provides guidance and answers questions about Finances and Financial Planning. Format important concepts with **double asterisks** and suggest relevant YouTube videos at the end.'
         },
-        ...messages,
-        userMessage
+        ...history,
       ]);
       
       const assistantMessage: Message = {
@@ -54,7 +57,8 @@ export const MentorChat: React.FC = () => {
       
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err: Error | unknown) {
-      setError(`Error: ${err instanceof Error ? err.message : 'Failed to get response'}`);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
+      setError(`Error: ${errorMessage}`);
       console.error('Chat Error:', err);
     } finally {
       setIsLoading(false);
@@ -73,10 +77,12 @@ export const MentorChat: React.FC = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, userMessage]);
 
+      const maxHistoryTokens = 1000;
+      const history = getLimitedHistory(messages, userMessage, maxHistoryTokens);
+
       const aiResponse = await sendMessageToGemini([
-        { role: 'system', content: '' },  // System prompt is now handled in the API
-        ...messages,
-        userMessage
+        { role: 'system', content: 'You are a helpful AI mentor who provides guidance and answers questions about Finances and Financial Planning. Format important concepts with **double asterisks** and suggest relevant YouTube videos at the end.' },
+        ...history,
       ]);
       
       const assistantMessage: Message = {
@@ -85,12 +91,42 @@ export const MentorChat: React.FC = () => {
       };
       
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (err) {
-      setError('Failed to get response. Please try again.');
+    } catch (err: Error | unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
+      setError(`Error: ${errorMessage}`);
       console.error('Error:', err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to limit history based on token count
+  const getLimitedHistory = (messages: Message[], newMessage: Message, maxTokens: number): Message[] => {
+    let currentTokens = 0;
+    const limitedHistory: Message[] = [];
+
+    // Add the new message first
+    currentTokens += countTokens(newMessage.content);
+    limitedHistory.unshift(newMessage);
+
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const message = messages[i];
+      const messageTokens = countTokens(message.content);
+
+      if (currentTokens + messageTokens <= maxTokens) {
+        currentTokens += messageTokens;
+        limitedHistory.unshift(message);
+      } else {
+        break; // Stop adding messages when token limit is reached
+      }
+    }
+
+    return limitedHistory;
+  };
+
+  // Basic token counting (replace with a proper token counting library for production)
+  const countTokens = (text: string): number => {
+    return text.split(/\s+/).length; // Very simplified token counting
   };
 
   return (

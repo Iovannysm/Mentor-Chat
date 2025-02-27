@@ -20,7 +20,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
       return (
         <div className="space-y-4">
           {lines.map((line, index) => {
-            // Main title (first line)
             if (index === 0) {
               return (
                 <h2 key={index} className="text-2xl font-bold text-gray-800 mb-6">
@@ -29,7 +28,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
               );
             }
 
-            // Section headers (ending with ':')
             if (line.trim().endsWith(':')) {
               return (
                 <h3 key={index} className="text-lg font-semibold text-gray-800 mt-6 mb-3">
@@ -38,7 +36,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
               );
             }
 
-            // Topic buttons
             const parts = line.split(/(\*\*.*?\*\*)/g);
             if (parts.length > 1) {
               return (
@@ -47,7 +44,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
                     const topicMatch = part.match(/^\*\*(.*?)\*\*$/);
                     if (topicMatch) {
                       const topic = topicMatch[1].trim();
-                      // Check if this is a subtopic (shorter text followed by a colon)
                       const isSubtopic = topic.length < 30 && topic.includes(':');
                       return (
                         <button
@@ -75,7 +71,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
               );
             }
 
-            // Questions
             if (line.trim().endsWith('?')) {
               return (
                 <p key={index} className="text-base font-medium text-blue-900 mt-4">
@@ -84,7 +79,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
               );
             }
 
-            // Regular text (only if not a definition)
             if (line.trim() && !line.includes(':')) {
               return (
                 <p key={index} className="text-base text-gray-700">
@@ -93,15 +87,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
               );
             }
 
-            // Handle video recommendations
             if (line.trim().startsWith('- "')) {
               const videoMatch = line.match(/- "(.*?)" by (.*?):/);
               if (videoMatch) {
                 const [_, title, channel] = videoMatch;
                 const description = line.split(': ')[1];
-                // Create a search query URL for YouTube
                 const searchQuery = encodeURIComponent(`${title} ${channel}`);
-                const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
+                const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`; // Corrected YouTube URL
                 
                 return (
                   <a 
@@ -150,7 +142,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ role, content, onO
               }
             }
 
-            return null; // Skip definitions
+            return null;
           })}
         </div>
       );
