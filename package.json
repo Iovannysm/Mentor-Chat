@@ -1,6 +1,5 @@
 {
   "name": "mentor-chat",
-  "homepage": "https://iovannysm.github.io/Mentor-Chat/",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -8,9 +7,7 @@
     "build": "tsc && vite build --mode production",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "vite preview --port 3000",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "start": "vite preview --port 3000"
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.0",
