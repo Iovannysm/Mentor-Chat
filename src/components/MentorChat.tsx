@@ -45,7 +45,7 @@ export const MentorChat: React.FC = () => {
       const aiResponse = await sendMessageToGemini([
         {
           role: 'system',
-          content: 'You are a helpful AI mentor who provides guidance and answers questions about Finances and Financial Planning. Format important concepts with **double asterisks** and suggest relevant YouTube videos at the end.'
+          content: 'Finance mentor. Use **bold** concepts. Suggest YouTube videos.'
         },
         ...history,
       ]);
