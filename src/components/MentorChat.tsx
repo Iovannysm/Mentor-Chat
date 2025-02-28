@@ -23,6 +23,16 @@ export const MentorChat: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    // Add the hardcoded initial message when the component mounts
+    setMessages([
+      {
+        role: 'assistant',
+        content: "Hello! I'm your financial mentor. How can I assist you today?"
+      }
+    ]);
+  }, []);
+
   const handleSendMessage = async (userMessageContent: string) => { // Consolidated function
     if (isLoading) return;
 
@@ -145,5 +155,3 @@ export const MentorChat: React.FC = () => {
     </div>
   );
 };
-
-// MessageBubble.tsx (no changes needed)
