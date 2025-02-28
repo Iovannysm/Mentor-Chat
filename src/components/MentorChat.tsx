@@ -23,14 +23,13 @@ export const MentorChat: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSendMessage = async (userMessageContent: string) => { // Consolidated function
+    if (isLoading) return;
 
     setError(null);
     const userMessage: Message = {
       role: 'user',
-      content: input.trim()
+      content: userMessageContent.trim()
     };
 
     try {
@@ -38,8 +37,7 @@ export const MentorChat: React.FC = () => {
       setMessages(prev => [...prev, userMessage]);
       setInput('');
 
-      // Dynamic history length based on token count (simplified example)
-      const maxHistoryTokens = 1000; // Adjust as needed based on Gemini API limits
+      const maxHistoryTokens = 1000;
       const history = getLimitedHistory(messages, userMessage, maxHistoryTokens);
 
       const aiResponse = await sendMessageToGemini([
@@ -49,12 +47,12 @@ export const MentorChat: React.FC = () => {
         },
         ...history,
       ]);
-      
+
       const assistantMessage: Message = {
         role: 'assistant',
         content: aiResponse
       };
-      
+
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err: Error | unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
@@ -65,47 +63,21 @@ export const MentorChat: React.FC = () => {
     }
   };
 
-  const handleOptionSelect = async (option: string) => {
-    if (isLoading) return;
-
-    const userMessage: Message = {
-      role: 'user',
-      content: option
-    };
-
-    try {
-      setIsLoading(true);
-      setMessages(prev => [...prev, userMessage]);
-
-      const maxHistoryTokens = 1000;
-      const history = getLimitedHistory(messages, userMessage, maxHistoryTokens);
-
-      const aiResponse = await sendMessageToGemini([
-        { role: 'system', content: 'You are a helpful AI mentor who provides guidance and answers questions about Finances and Financial Planning. Format important concepts with **double asterisks** and suggest relevant YouTube videos at the end.' },
-        ...history,
-      ]);
-      
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: aiResponse
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (err: Error | unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
-      setError(`Error: ${errorMessage}`);
-      console.error('Error:', err);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    handleSendMessage(input);
+    setInput("");
   };
 
-  // Function to limit history based on token count
+  const handleOptionSelect = async (option: string) => {
+    handleSendMessage(option);
+  };
+
   const getLimitedHistory = (messages: Message[], newMessage: Message, maxTokens: number): Message[] => {
     let currentTokens = 0;
     const limitedHistory: Message[] = [];
 
-    // Add the new message first
     currentTokens += countTokens(newMessage.content);
     limitedHistory.unshift(newMessage);
 
@@ -117,16 +89,15 @@ export const MentorChat: React.FC = () => {
         currentTokens += messageTokens;
         limitedHistory.unshift(message);
       } else {
-        break; // Stop adding messages when token limit is reached
+        break;
       }
     }
 
     return limitedHistory;
   };
 
-  // Basic token counting (replace with a proper token counting library for production)
   const countTokens = (text: string): number => {
-    return text.split(/\s+/).length; // Very simplified token counting
+    return text.split(/\s+/).length;
   };
 
   return (
@@ -174,3 +145,5 @@ export const MentorChat: React.FC = () => {
     </div>
   );
 };
+
+// MessageBubble.tsx (no changes needed)
